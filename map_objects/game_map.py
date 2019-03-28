@@ -11,6 +11,7 @@ from components.ai import BasicMonster
 from components.fighter import Fighter
 from components.item import Item
 from entity import Entity
+from item_functions import heal
 from map_objects.rectangle import Rect
 from map_objects.tile import Tile
 from render_functions import RenderOrder
@@ -178,7 +179,7 @@ class GameMap:
                     entity for entity in entities
                     if entity.x_pos == x_pos and entity.y_pos == y_pos
             ]):
-                item_component = Item()
+                item_component = Item(use_function=heal, amount=4)
                 item = Entity(
                     x_pos,
                     y_pos,
