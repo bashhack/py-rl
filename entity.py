@@ -16,18 +16,20 @@ class Entity:
 
     """
 
-    def __init__(self,
-                 x_pos,
-                 y_pos,
-                 char,
-                 color,
-                 name,
-                 blocks=False,
-                 render_order=RenderOrder.CORPSE,
-                 fighter=None,
-                 ai=None,
-                 item=None,
-                 inventory=None):
+    def __init__(
+        self,
+        x_pos,
+        y_pos,
+        char,
+        color,
+        name,
+        blocks=False,
+        render_order=RenderOrder.CORPSE,
+        fighter=None,
+        ai=None,
+        item=None,
+        inventory=None,
+    ):
         self.x_pos = x_pos
         self.y_pos = y_pos
         self.char = char
@@ -66,14 +68,17 @@ class Entity:
 
         dx = target_x - self.x_pos
         dy = target_y - self.y_pos
-        distance = sqrt(dx**2 + dy**2)
+        distance = sqrt(dx ** 2 + dy ** 2)
 
         dx = int(round(dx / distance))
         dy = int(round(dy / distance))
 
-        if not (game_map.is_blocked(self.x_pos + dx, self.y_pos + dy)
-                or get_blocking_entities_at_location(entities, self.x_pos + dx,
-                                                     self.y_pos + dy)):
+        if not (
+            game_map.is_blocked(self.x_pos + dx, self.y_pos + dy)
+            or get_blocking_entities_at_location(
+                entities, self.x_pos + dx, self.y_pos + dy
+            )
+        ):
             self.move(dx, dy)
 
     def distance_to(self, other):
@@ -83,7 +88,10 @@ class Entity:
 
         dx = other.x_pos - self.x_pos
         dy = other.y_pos - self.y_pos
-        return sqrt(dx**2 + dy**2)
+        return sqrt(dx ** 2 + dy ** 2)
+
+    def distance(self, x_pos, y_pos):
+        return sqrt((x_pos - self.x_pos) ** 2 + (y_pos - self.y_pos) ** 2)
 
     def move_astar(self, target, entities, game_map):
         """ A-star pathfinding algorithm
@@ -110,16 +118,14 @@ class Entity:
         for entity in entities:
             if entity.blocks and entity != self and entity != target:
                 # Set the tile as a wall so it must be navigated around
-                tcod.map_set_properties(fov, entity.x_pos, entity.y_pos, True,
-                                        False)
+                tcod.map_set_properties(fov, entity.x_pos, entity.y_pos, True, False)
 
         # Allocate a A* path
         # The 1.41 is the normal diagonal cost of moving, it can be set as 0.0 if diagonal moves are prohibited
         my_path = tcod.path_new_using_map(fov, 1.41)
 
         # Compute the path between self's coordinates and the target's coordinates
-        tcod.path_compute(my_path, self.x_pos, self.y_pos, target.x_pos,
-                          target.y_pos)
+        tcod.path_compute(my_path, self.x_pos, self.y_pos, target.x_pos, target.y_pos)
 
         # Check if the path exists, and in this case, also the path is shorter than 25 tiles
         # The path size matters if you want the monster to use alternative longer paths (for example through other rooms) if for example the player is in a corridor
@@ -146,8 +152,9 @@ def get_blocking_entities_at_location(entities, destination_x, destination_y):
     """
 
     for entity in entities:
-        entity_at_position = (entity.x_pos == destination_x
-                              and entity.y_pos == destination_y)
+        entity_at_position = (
+            entity.x_pos == destination_x and entity.y_pos == destination_y
+        )
         if entity.blocks and entity_at_position:
             return entity
 

@@ -11,7 +11,8 @@ from components.ai import BasicMonster
 from components.fighter import Fighter
 from components.item import Item
 from entity import Entity
-from item_functions import heal
+from game_messages import Message
+from item_functions import cast_fireball, cast_lightning, heal
 from map_objects.rectangle import Rect
 from map_objects.tile import Tile
 from render_functions import RenderOrder
@@ -32,14 +33,22 @@ class GameMap:
 
         """
 
-        tiles = [[Tile(True) for y in range(self.height)]
-                 for x in range(self.width)]
+        tiles = [[Tile(True) for y in range(self.height)] for x in range(self.width)]
 
         return tiles
 
-    def make_map(self, max_rooms, room_min_size, room_max_size, map_width,
-                 map_height, player, entities, max_monsters_per_room,
-                 max_items_per_room):
+    def make_map(
+        self,
+        max_rooms,
+        room_min_size,
+        room_max_size,
+        map_width,
+        map_height,
+        player,
+        entities,
+        max_monsters_per_room,
+        max_items_per_room,
+    ):
         """ Given max num of rooms: create them + connect with tunnels
 
         """
@@ -87,8 +96,9 @@ class GameMap:
                         self.create_horizontal_tunnel(prev_x, new_x, new_y)
 
                 # add monsters
-                self.place_entities(new_room, entities, max_monsters_per_room,
-                                    max_items_per_room)
+                self.place_entities(
+                    new_room, entities, max_monsters_per_room, max_items_per_room
+                )
 
                 # append new room to the list
                 rooms.append(new_room)
@@ -122,8 +132,7 @@ class GameMap:
             self.tiles[x_pos][y_pos].blocked = False
             self.tiles[x_pos][y_pos].block_sight = False
 
-    def place_entities(self, room, entities, max_monsters_per_room,
-                       max_items_per_room):
+    def place_entities(self, room, entities, max_monsters_per_room, max_items_per_room):
         """ Places a random number of monsters in a room
 
         """
@@ -135,10 +144,13 @@ class GameMap:
             x_pos = randint(room.x_1 + 1, room.x_2 - 1)
             y_pos = randint(room.y_1 + 1, room.y_2 - 1)
 
-            if not any([
-                    entity for entity in entities
+            if not any(
+                [
+                    entity
+                    for entity in entities
                     if entity.x_pos == x_pos and entity.y_pos == y_pos
-            ]):
+                ]
+            ):
                 if randint(0, 100) < 80:
                     fighter_component = Fighter(hp=10, defense=0, power=3)
                     ai_component = BasicMonster()
@@ -175,19 +187,59 @@ class GameMap:
             x_pos = randint(room.x_1 + 1, room.x_2 - 1)
             y_pos = randint(room.y_1 + 1, room.y_2 - 1)
 
-            if not any([
-                    entity for entity in entities
+            if not any(
+                [
+                    entity
+                    for entity in entities
                     if entity.x_pos == x_pos and entity.y_pos == y_pos
-            ]):
-                item_component = Item(use_function=heal, amount=4)
-                item = Entity(
-                    x_pos,
-                    y_pos,
-                    '!',
-                    tcod.violet,
-                    'Healing Potion',
-                    render_order=RenderOrder.ITEM,
-                    item=item_component)
+                ]
+            ):
+                item_chance = randint(0, 100)
+
+                if item_chance < 70:
+                    item_component = Item(use_function=heal, amount=4)
+                    item = Entity(
+                        x_pos,
+                        y_pos,
+                        "!",
+                        tcod.violet,
+                        "Healing Potion",
+                        render_order=RenderOrder.ITEM,
+                        item=item_component,
+                    )
+                elif item_chance < 85:
+                    item_component = Item(
+                        use_function=cast_fireball,
+                        targeting=True,
+                        targeting_message=Message(
+                            "Left-click a target tile for the fireball, or right-click to cancel.",
+                            tcod.light_cyan,
+                        ),
+                        damage=12,
+                        radius=3,
+                    )
+                    item = Entity(
+                        x_pos,
+                        y_pos,
+                        "#",
+                        tcod.red,
+                        "Fireball Scroll",
+                        render_order=RenderOrder.ITEM,
+                        item=item_component,
+                    )
+                else:
+                    item_component = Item(
+                        use_function=cast_lightning, damage=20, maximum_range=5
+                    )
+                    item = Entity(
+                        x_pos,
+                        y_pos,
+                        "#",
+                        tcod.yellow,
+                        "Lightning Scroll",
+                        render_order=RenderOrder.ITEM,
+                        item=item_component,
+                    )
                 entities.append(item)
 
     def is_blocked(self, x_pos, y_pos):

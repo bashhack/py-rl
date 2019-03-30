@@ -11,15 +11,17 @@ from game_states import GameStates
 
 def handle_keys(key, game_state):
     if game_state == GameStates.PLAYERS_TURN:
-        return handle_player_turn_keys(key, game_state)
+        return handle_player_turn_keys(key)
     elif game_state == GameStates.PLAYER_DEAD:
         return handle_player_dead_keys(key)
+    elif game_state == GameStates.TARGETING:
+        return handle_targeting_keys(key)
     elif game_state in (GameStates.SHOW_INVENTORY, GameStates.DROP_INVENTORY):
         return handle_inventory_keys(key)
     return {}
 
 
-def handle_player_turn_keys(key, game_state):
+def handle_player_turn_keys(key):
     """ Maps key to keymap
 
     """
@@ -46,17 +48,17 @@ def handle_player_turn_keys(key, game_state):
     if key_char == "n":
         keymap["move"] = (1, 1)
 
-    if key_char == 'g':
+    if key_char == "g":
         # Pickup item
-        keymap['pickup'] = True
+        keymap["pickup"] = True
 
-    if key_char == 'i':
+    if key_char == "i":
         # Show inventory
-        keymap['show_inventory'] = True
+        keymap["show_inventory"] = True
 
-    if key_char == 'd':
+    if key_char == "d":
         # Drop item from inventory
-        keymap['drop_inventory'] = True
+        keymap["drop_inventory"] = True
 
     if key.vk == tcod.KEY_ENTER and key.lalt:
         # Alt+Enter: toggle full screen
@@ -73,9 +75,9 @@ def handle_player_dead_keys(key):
 
     keymap = {}
 
-    if key_char == 'i':
+    if key_char == "i":
         # Show inventory
-        return {'show_inventory': True}
+        return {"show_inventory": True}
 
     if key.vk == tcod.KEY_ENTER and key.lalt:
         # Alt+Enter: toggle full screen
@@ -88,12 +90,12 @@ def handle_player_dead_keys(key):
 
 
 def handle_inventory_keys(key):
-    index = key.c - ord('a')
+    index = key.c - ord("a")
 
     keymap = {}
 
     if index >= 0:
-        keymap['inventory_index'] = index
+        keymap["inventory_index"] = index
 
     if key.vk == tcod.KEY_ENTER and key.lalt:
         # Alt+Enter: toggle full screen
@@ -102,5 +104,27 @@ def handle_inventory_keys(key):
     if key.vk == tcod.KEY_ESCAPE:
         # Exit the game
         keymap["exit"] = True
+
+    return keymap
+
+
+def handle_targeting_keys(key):
+    keymap = {}
+
+    if key.vk == tcod.KEY_ESCAPE:
+        keymap["exit"] = True
+
+    return keymap
+
+
+def handle_mouse(mouse):
+    (x_pos, y_pos) = (mouse.cx, mouse.cy)
+
+    keymap = {}
+
+    if mouse.lbutton_pressed:
+        keymap["left_click"] = (x_pos, y_pos)
+    elif mouse.rbutton_pressed:
+        keymap["right_click"] = (x_pos, y_pos)
 
     return keymap
