@@ -13,12 +13,20 @@ from menu import inventory_menu
 
 
 class RenderOrder(Enum):
+    """ Static collection of rendering types
+
+    """
+
     CORPSE = auto()
     ITEM = auto()
     ACTOR = auto()
 
 
 def get_names_under_mouse(mouse, entities, fov_map):
+    """ Detect names of entities under mouse coordinate
+
+    """
+
     (x, y) = (mouse.cx, mouse.cy)
 
     names = [
@@ -36,6 +44,10 @@ def get_names_under_mouse(mouse, entities, fov_map):
 def render_bar(
     panel, x_pos, y_pos, total_width, name, value, maximum, bar_color, back_color
 ):
+    """ Generates a status bar with name and value
+
+    """
+
     bar_width = int(float(value) / maximum * total_width)
 
     tcod.console_set_default_background(panel, back_color)

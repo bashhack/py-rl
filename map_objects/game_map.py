@@ -1,6 +1,10 @@
 """ Game Map:
 
-- creates the tile container
+- create the tile container
+- generate rooms
+- determine if coordinate is blocked
+- create vertical/horizontal tunnels
+- place entities on game map
 
 """
 from random import randint

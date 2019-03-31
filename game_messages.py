@@ -1,6 +1,7 @@
 """ Messages:
 
-- create message log
+- message
+- message log
 
 """
 
@@ -10,12 +11,20 @@ import tcod
 
 
 class Message:
+    """ Basic abstraction for a message (text and color)
+
+    """
+
     def __init__(self, text, color=tcod.white):
         self.text = text
         self.color = color
 
 
 class MessageLog:
+    """ Collection of messages, as well as a reference to their position
+
+    """
+
     def __init__(self, x, width, height):
         self.messages = []
         self.x = x
@@ -23,6 +32,10 @@ class MessageLog:
         self.height = height
 
     def add_message(self, message):
+        """ Adds a message to the message log (with display formatting)
+
+        """
+
         # Split the message across multiple lines, if necessary
         new_msg_lines = textwrap.wrap(message.text, self.width)
 

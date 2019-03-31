@@ -1,6 +1,6 @@
-""" Key Handlers
+""" Key Handlers:
 
-- binds key input to keymap
+- bind keys to keymap for given game states
 
 """
 
@@ -10,19 +10,23 @@ from game_states import GameStates
 
 
 def handle_keys(key, game_state):
+    """ Given a game state and key, calls appropriate key handler
+
+    """
+
     if game_state == GameStates.PLAYERS_TURN:
         return handle_player_turn_keys(key)
-    elif game_state == GameStates.PLAYER_DEAD:
+    if game_state == GameStates.PLAYER_DEAD:
         return handle_player_dead_keys(key)
-    elif game_state == GameStates.TARGETING:
+    if game_state == GameStates.TARGETING:
         return handle_targeting_keys(key)
-    elif game_state in (GameStates.SHOW_INVENTORY, GameStates.DROP_INVENTORY):
+    if game_state in (GameStates.SHOW_INVENTORY, GameStates.DROP_INVENTORY):
         return handle_inventory_keys(key)
     return {}
 
 
 def handle_player_turn_keys(key):
-    """ Maps key to keymap
+    """ Binds keys to keymap for player turn
 
     """
 
@@ -71,6 +75,10 @@ def handle_player_turn_keys(key):
 
 
 def handle_player_dead_keys(key):
+    """ Binds keys to keymap for valid actions if player dead
+
+    """
+
     key_char = chr(key.c)
 
     keymap = {}
@@ -90,6 +98,10 @@ def handle_player_dead_keys(key):
 
 
 def handle_inventory_keys(key):
+    """ Binds keys to keymap for inventory actions
+
+    """
+
     index = key.c - ord("a")
 
     keymap = {}
@@ -109,6 +121,10 @@ def handle_inventory_keys(key):
 
 
 def handle_targeting_keys(key):
+    """ Binds keys to keymap if targeting
+
+    """
+
     keymap = {}
 
     if key.vk == tcod.KEY_ESCAPE:
@@ -118,6 +134,10 @@ def handle_targeting_keys(key):
 
 
 def handle_mouse(mouse):
+    """ Binds mouse movement to left and right click actions
+
+    """
+
     (x_pos, y_pos) = (mouse.cx, mouse.cy)
 
     keymap = {}

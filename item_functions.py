@@ -1,6 +1,8 @@
 """ Item Functions:
 
-- item-specific handlers
+- healing
+- cast lightning
+- cast fireball
 
 """
 
@@ -10,6 +12,10 @@ from game_messages import Message
 
 
 def heal(*args, **kwargs):
+    """ Given an entity, determines whether healing can occur
+
+    """
+
     entity = args[0]
     amount = kwargs.get("amount")
 
@@ -35,6 +41,10 @@ def heal(*args, **kwargs):
 
 
 def cast_lightning(*args, **kwargs):
+    """ Area of effect spell - determine if damage occurs for target and apply
+
+    """
+
     caster = args[0]
     entities = kwargs.get("entities")
     fov_map = kwargs.get("fov_map")
@@ -82,6 +92,10 @@ def cast_lightning(*args, **kwargs):
 
 
 def cast_fireball(*args, **kwargs):
+    """ Targeting spell - determine if damage occurs for target and apply
+
+    """
+
     entities = kwargs.get("entities")
     fov_map = kwargs.get("fov_map")
     damage = kwargs.get("damage")

@@ -1,6 +1,9 @@
 """ Entity:
 
 - creation
+- movement
+- pathfinding
+- helpers
 
 """
 
@@ -58,6 +61,7 @@ class Entity:
         """ Move the entity by a given amount
 
         """
+
         self.x_pos += d_x
         self.y_pos += d_y
 
@@ -91,6 +95,10 @@ class Entity:
         return sqrt(dx ** 2 + dy ** 2)
 
     def distance(self, x_pos, y_pos):
+        """ Get distance between the Entity and an arbitrary point
+
+        """
+
         return sqrt((x_pos - self.x_pos) ** 2 + (y_pos - self.y_pos) ** 2)
 
     def move_astar(self, target, entities, game_map):

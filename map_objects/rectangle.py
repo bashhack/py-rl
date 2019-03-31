@@ -1,6 +1,6 @@
 """ Rectangle:
 
-- create rooms
+- helpers for room creation
 
 """
 
@@ -17,11 +17,19 @@ class Rect:
         self.y_2 = y_pos + height
 
     def center(self):
+        """ Get center of a room
+
+        """
+
         center_x = int((self.x_1 + self.x_2) / 2)
         center_y = int((self.y_1 + self.y_2) / 2)
         return (center_x, center_y)
 
     def intersect(self, other):
+        """ Determine if two rooms intersect
+
+        """
+
         return (
             self.x_1 <= other.x_2
             and self.x_2 >= other.x_1

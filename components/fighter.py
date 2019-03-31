@@ -35,6 +35,10 @@ class Fighter:
         return results
 
     def heal(self, amount):
+        """ Increases the HP of an entity
+
+        """
+
         self.hp += amount
 
         if self.hp > self.max_hp:

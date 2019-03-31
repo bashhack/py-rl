@@ -27,8 +27,8 @@ MAP = {"width": 80, "height": 43}
 COLORS = {
     "dark_wall": tcod.Color(0, 0, 100),  # dark blue
     "dark_ground": tcod.Color(50, 50, 150),  # light blue
-    "light_wall": tcod.Color(130, 110, 50),
-    "light_ground": tcod.Color(200, 180, 50),
+    "light_wall": tcod.Color(130, 110, 50),  # dark yellow
+    "light_ground": tcod.Color(200, 180, 50),  # light yellow
 }
 
 # Room

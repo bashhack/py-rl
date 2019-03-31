@@ -19,6 +19,10 @@ class Inventory:
         self.items = []
 
     def add_item(self, item):
+        """ Adds an item to inventory items, if capacity not reached
+
+        """
+
         results = []
 
         if len(self.items) >= self.capacity:
@@ -42,6 +46,10 @@ class Inventory:
         return results
 
     def use(self, item_entity, **kwargs):
+        """ Given an item entity, allows for its usage and tracks the result
+
+        """
+
         results = []
 
         item_component = item_entity.item
@@ -66,9 +74,17 @@ class Inventory:
         return results
 
     def remove_item(self, item):
+        """ Removes an item entity from the inventory
+
+        """
+
         self.items.remove(item)
 
     def drop_item(self, item):
+        """ Drop (and remove) an item from the inventory at a coordinate
+
+        """
+
         results = []
 
         item.x_pos = self.owner.x_pos

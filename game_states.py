@@ -8,7 +8,7 @@ from enum import Enum, auto
 
 
 class GameStates(Enum):
-    """
+    """ Static collection of game states
 
     """
 
