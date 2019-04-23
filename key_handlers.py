@@ -22,6 +22,8 @@ def handle_keys(key, game_state):
         return handle_targeting_keys(key)
     if game_state in (GameStates.SHOW_INVENTORY, GameStates.DROP_INVENTORY):
         return handle_inventory_keys(key)
+    if game_state == GameStates.LEVEL_UP:
+        return handle_level_up_menu(key)
     return {}
 
 
@@ -63,6 +65,10 @@ def handle_player_turn_keys(key):
     if key_char == "d":
         # Drop item from inventory
         keymap["drop_inventory"] = True
+
+    if key.vk == tcod.KEY_ENTER:
+        # Navigate the stairs
+        keymap['take_stairs'] = True
 
     if key.vk == tcod.KEY_ENTER and key.lalt:
         # Alt+Enter: toggle full screen
@@ -146,5 +152,44 @@ def handle_mouse(mouse):
         keymap["left_click"] = (x_pos, y_pos)
     elif mouse.rbutton_pressed:
         keymap["right_click"] = (x_pos, y_pos)
+
+    return keymap
+
+
+def handle_level_up_menu(key):
+    """ Binds keys to keymap for level up menu
+
+    """
+
+    key_char = chr(key.c)
+
+    keymap = {}
+
+    if key_char == 'a':
+        keymap['level_up'] = 'hp'
+    if key_char == 'a':
+        keymap['level_up'] = 'str'
+    if key_char == 'a':
+        keymap['level_up'] = 'def'
+
+    return keymap
+
+
+def handle_main_menu(key):
+    """ Binds keys to keymap for main menu
+
+    """
+
+    keymap = {}
+
+    if key:
+        key_char = chr(key.c)
+
+        if key_char == 'a':
+            keymap['new_game'] = True
+        elif key_char == 'b':
+            keymap['load_game'] = True
+        elif key_char == 'c' or key.vk == tcod.KEY_ESCAPE:
+            keymap['exit'] = True
 
     return keymap

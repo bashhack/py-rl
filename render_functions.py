@@ -9,7 +9,7 @@ from enum import Enum, auto
 import tcod
 
 from game_states import GameStates
-from menu import inventory_menu
+from menu import inventory_menu, level_up_menu
 
 
 class RenderOrder(Enum):
@@ -17,6 +17,7 @@ class RenderOrder(Enum):
 
     """
 
+    STAIRS = auto()
     CORPSE = auto()
     ITEM = auto()
     ACTOR = auto()
@@ -30,10 +31,8 @@ def get_names_under_mouse(mouse, entities, fov_map):
     (x, y) = (mouse.cx, mouse.cy)
 
     names = [
-        entity.name
-        for entity in entities
-        if entity.x_pos == x
-        and entity.y_pos == y
+        entity.name for entity in entities
+        if entity.x_pos == x and entity.y_pos == y
         and tcod.map_is_in_fov(fov_map, entity.x_pos, entity.y_pos)
     ]
     names = ", ".join(names)
@@ -41,9 +40,8 @@ def get_names_under_mouse(mouse, entities, fov_map):
     return names.capitalize()
 
 
-def render_bar(
-    panel, x_pos, y_pos, total_width, name, value, maximum, bar_color, back_color
-):
+def render_bar(panel, x_pos, y_pos, total_width, name, value, maximum,
+               bar_color, back_color):
     """ Generates a status bar with name and value
 
     """
@@ -51,11 +49,13 @@ def render_bar(
     bar_width = int(float(value) / maximum * total_width)
 
     tcod.console_set_default_background(panel, back_color)
-    tcod.console_rect(panel, x_pos, y_pos, total_width, 1, False, tcod.BKGND_SCREEN)
+    tcod.console_rect(panel, x_pos, y_pos, total_width, 1, False,
+                      tcod.BKGND_SCREEN)
     tcod.console_set_default_background(panel, bar_color)
 
     if bar_width > 0:
-        tcod.console_rect(panel, x_pos, y_pos, bar_width, 1, False, tcod.BKGND_SCREEN)
+        tcod.console_rect(panel, x_pos, y_pos, bar_width, 1, False,
+                          tcod.BKGND_SCREEN)
 
     tcod.console_set_default_foreground(panel, tcod.white)
     tcod.console_print_ex(
@@ -68,16 +68,17 @@ def render_bar(
     )
 
 
-def draw_entity(console, entity, fov_map):
+def draw_entity(console, entity, fov_map, game_map):
     """ Draws an entity on the console
 
     """
 
-    if tcod.map_is_in_fov(fov_map, entity.x_pos, entity.y_pos):
+    if tcod.map_is_in_fov(fov_map, entity.x_pos, entity.y_pos) or (
+            entity.stairs
+            and game_map.tiles[entity.x_pos][entity.y_pos].explored):
         tcod.console_set_default_foreground(console, entity.color)
-        tcod.console_put_char(
-            console, entity.x_pos, entity.y_pos, entity.char, tcod.BKGND_NONE
-        )
+        tcod.console_put_char(console, entity.x_pos, entity.y_pos, entity.char,
+                              tcod.BKGND_NONE)
 
 
 def clear_entity(console, entity):
@@ -85,26 +86,27 @@ def clear_entity(console, entity):
 
     """
 
-    tcod.console_put_char(console, entity.x_pos, entity.y_pos, " ", tcod.BKGND_NONE)
+    tcod.console_put_char(console, entity.x_pos, entity.y_pos, " ",
+                          tcod.BKGND_NONE)
 
 
 def render_all(
-    console,
-    panel,
-    entities,
-    player,
-    game_map,
-    fov_map,
-    fov_recompute,
-    message_log,
-    screen_width,
-    screen_height,
-    bar_width,
-    panel_height,
-    panel_y,
-    mouse,
-    colors,
-    game_state,
+        console,
+        panel,
+        entities,
+        player,
+        game_map,
+        fov_map,
+        fov_recompute,
+        message_log,
+        screen_width,
+        screen_height,
+        bar_width,
+        panel_height,
+        panel_y,
+        mouse,
+        colors,
+        game_state,
 ):
     """ Draw all entities
 
@@ -154,10 +156,11 @@ def render_all(
                         )
 
     # Draw all entities
-    entities_in_render_order = sorted(entities, key=lambda x: x.render_order.value)
+    entities_in_render_order = sorted(
+        entities, key=lambda x: x.render_order.value)
 
     for entity in entities_in_render_order:
-        draw_entity(console, entity, fov_map)
+        draw_entity(console, entity, fov_map, game_map)
 
     tcod.console_blit(console, 0, 0, screen_width, screen_height, 0, 0, 0)
 
@@ -168,9 +171,8 @@ def render_all(
     y = 1
     for message in message_log.messages:
         tcod.console_set_default_foreground(panel, message.color)
-        tcod.console_print_ex(
-            panel, message_log.x, y, tcod.BKGND_NONE, tcod.LEFT, message.text
-        )
+        tcod.console_print_ex(panel, message_log.x, y, tcod.BKGND_NONE,
+                              tcod.LEFT, message.text)
         y += 1
 
     render_bar(
@@ -184,6 +186,8 @@ def render_all(
         tcod.light_red,
         tcod.darker_red,
     )
+    tcod.console_print_ex(panel, 1, 3, tcod.BKGND_NONE, tcod.LEFT,
+                          f'Dungeon level {game_map.dungeon_level}')
 
     tcod.console_set_default_foreground(panel, tcod.light_gray)
     tcod.console_print_ex(
@@ -200,15 +204,15 @@ def render_all(
     if game_state in (GameStates.SHOW_INVENTORY, GameStates.DROP_INVENTORY):
         if game_state == GameStates.SHOW_INVENTORY:
             inventory_title = (
-                "Press the key next to an item to use it, or Esc to cancel\n"
-            )
+                "Press the key next to an item to use it, or Esc to cancel\n")
         else:
             inventory_title = (
-                "Press the key next to an item to drop it, or Esc to cancel\n"
-            )
-        inventory_menu(
-            console, inventory_title, player.inventory, 50, screen_width, screen_height
-        )
+                "Press the key next to an item to drop it, or Esc to cancel\n")
+        inventory_menu(console, inventory_title, player.inventory, 50,
+                       screen_width, screen_height)
+    elif game_state == GameStates.LEVEL_UP:
+        level_up_menu(console, 'Level up! Choose a stat to raise:', player, 40,
+                      screen_width, screen_height)
 
 
 def clear_all(console, entities):
